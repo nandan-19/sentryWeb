@@ -1,0 +1,59 @@
+# Python
+__pycache__
+*.pyc
+*.pyd
+*.pyo
+*.egg
+*.egg-info
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# FastAPI Cloud deployment
+# files tracked in git but not needed for deployment (optional)
+# tests/
+# docs/
+# scripts/
+
+# IDE-specific files (optional, uncomment as needed)
+# .idea/  # PyCharm
+# .vscode/ # VS Code
+# *.suo
+# *.user
+# *.sln
+# *.ide
+# *.swp
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+.cache
+htmlcov/
+nosetests.xml
+coverage.xml
+*.cover
+
+# Databases
+*.sqlite3
+test.db
+*.db
+
+# OS generated files
+.DS_Store # macOS
+*~ # Linux/macOS temporary files
+
+# Build artifacts
+dist/
+build/
+site/
+docs/_build/
+target/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+

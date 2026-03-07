@@ -4,6 +4,11 @@ import { checkPayloadWithOllama } from './api';
 export const initNetworkMonitoring = () => {
     chrome.webRequest.onBeforeRequest.addListener(
         (details): chrome.webRequest.BlockingResponse | undefined => {
+
+            if (details.url.includes("localhost:11434")) {
+                return undefined;
+            }
+
             if (details.method === "POST" && details.requestBody) {
                 const url = details.url;
                 const tabId = details.tabId; // Get the ID of the tab making the request
@@ -36,12 +41,14 @@ export const initNetworkMonitoring = () => {
 };
 
 async function analyzePayload(tabId: number, url: string, payload: string) {
+    console.log(`[Ollama] Analyzing payload to ${url}...`);
+
     const result = await checkPayloadWithOllama(payload);
 
-    if (result.isMalicious) {
-        console.error(`🚨 THREAT: ${result.reason}`);
+    // Log the actual verdict so we can see it in the Service Worker console
+    console.log(`[Ollama Verdict] Malicious: ${result.isMalicious}, Reason: ${result.reason}`);
 
-        // Shout out to the React App sitting in the content script!
+    if (result.isMalicious) {
         try {
             chrome.tabs.sendMessage(tabId, {
                 type: "SECURITY_ALERT",

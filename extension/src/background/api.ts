@@ -10,6 +10,7 @@ export async function checkPayloadWithOllama(payload: string): Promise<{ isMalic
     2. SQL Injection or XSS patterns
     3. Obfuscated malicious scripts
     Return ONLY a JSON object: {"isMalicious": boolean, "reason": "short string"}
+    By "reason":"short string" I mean to send the actual reason in few words
   `;
 
     try {

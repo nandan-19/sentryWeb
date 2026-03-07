@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM debian:12
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -22,21 +22,16 @@ RUN apt-get update && apt-get install -y \
     libasound2 \
     net-tools \
     iproute2 \
-    dnsutils
-
-RUN pip3 install mitmproxy
+    dnsutils \
+    mitmproxy \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /sandbox
 
 EXPOSE 9222
 EXPOSE 8080
 
-CMD mitmdump -p 8080 & \
-    chromium \
-    --headless \
-    --disable-gpu \
-    --no-sandbox \
-    --disable-dev-shm-usage \
-    --remote-debugging-port=9222 \
-    --proxy-server=http://127.0.0.1:8080 \
-    https://example.com
+COPY start.sh /sandbox/start.sh
+RUN chmod +x /sandbox/start.sh
+
+CMD ["/sandbox/start.sh"]

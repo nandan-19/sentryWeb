@@ -1,17 +1,15 @@
 {
   "domains": [
-    "challenges.cloudflare.com",
+    "android.clients.google.com",
     "optimizationguide-pa.googleapis.com",
     "accounts.google.com",
-    "android.clients.google.com",
-    "chatgpt.com"
+    "wyatt-delineative-reggie.ngrok-free.dev"
   ],
   "external_domains": [
-    "challenges.cloudflare.com",
+    "android.clients.google.com",
     "optimizationguide-pa.googleapis.com",
     "accounts.google.com",
-    "android.clients.google.com",
-    "chatgpt.com"
+    "wyatt-delineative-reggie.ngrok-free.dev"
   ],
-  "post_requests": 9
+  "post_requests": 6
 }

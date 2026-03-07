@@ -4,6 +4,9 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 func runSandbox(url string) error {
@@ -45,13 +48,25 @@ func main() {
 		return
 	}
 
+	time.Sleep(5 * time.Second)
+
 	telemetry, err := readTelemetry("../telemetry/telemetry.json")
 	if err != nil {
 		log.Println("Failed to read telemetry:", err)
 		return
 	}
 
-	prompt := buildPrompt(telemetry)
+	features := extractFeatures(telemetry)
+
+	text := featuresToText(features)
+
+	vector, _ := generateEmbedding(text)
+
+	similar := searchSimilar(vector)
+
+	prompt := buildRAGPrompt(telemetry, string(similar))
 
 	analyzeWithOllama(prompt)
+
+	storeVector(uuid.New().String(), vector, *telemetry)
 }

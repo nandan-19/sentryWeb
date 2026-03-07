@@ -68,22 +68,30 @@ const observer = new MutationObserver(() => {
     }, 1000); // Wait 1 second after last DOM change to scan
 });
 
-// Start watching
-observer.observe(document.body, { childList: true, subtree: true });
+/**
+ * Initialization function
+ */
+function init() {
+    if (!document.body) return;
 
-// Initial scan
-window.addEventListener("load", () => {
+    injectAgentUI();
     analyzeSecurity(document.body.innerText);
-});
+
+    // Start watching
+    observer.observe(document.body, { childList: true, subtree: true });
+}
+
+// Check readyState to run immediately if document is already loaded
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    init();
+} else {
+    window.addEventListener('load', init);
+}
 
 // Temporary Badge UI until React is ready
 function showSecurityBadge(reason: string) {
     const badge = document.createElement('div');
-    badge.style.cssText = "fixed; bottom: 20px; right: 20px; background: red; color: white; padding: 10px; z-index: 9999; border-radius: 8px; font-family: sans-serif;";
+    badge.style.cssText = "position: fixed; bottom: 80px; right: 20px; background: red; color: white; padding: 10px; z-index: 9999; border-radius: 8px; font-family: sans-serif;";
     badge.innerText = `⚠️ Threat Detected: ${reason}`;
     document.body.appendChild(badge);
 }
-
-window.addEventListener('load', () => {
-    injectAgentUI();
-});

@@ -1,11 +1,12 @@
-// src/background/network.ts
+// file: src/background/network.ts
 import { checkPayloadWithOllama } from './api';
 
 export const initNetworkMonitoring = () => {
     chrome.webRequest.onBeforeRequest.addListener(
-        (details): chrome.webRequest.BlockingResponse | undefined => { // Use 'undefined', not 'void'
+        (details): chrome.webRequest.BlockingResponse | undefined => {
             if (details.method === "POST" && details.requestBody) {
                 const url = details.url;
+                const tabId = details.tabId; // Get the ID of the tab making the request
                 const body = details.requestBody;
 
                 console.log(`[Network Monitor] Intercepted POST to: ${url}`);
@@ -21,12 +22,12 @@ export const initNetworkMonitoring = () => {
                         .slice(0, 5000);
                 }
 
-                if (payload) {
-                    analyzePayload(url, payload);
+                // Only analyze if the request originated from a real tab (tabId > -1)
+                if (payload && tabId > -1) {
+                    analyzePayload(tabId, url, payload);
                 }
             }
 
-            // Explicitly return undefined to satisfy the strict type requirement
             return undefined;
         },
         { urls: ["<all_urls>"] },
@@ -34,9 +35,20 @@ export const initNetworkMonitoring = () => {
     );
 };
 
-async function analyzePayload(url: string, payload: string) {
+async function analyzePayload(tabId: number, url: string, payload: string) {
     const result = await checkPayloadWithOllama(payload);
+
     if (result.isMalicious) {
         console.error(`🚨 THREAT: ${result.reason}`);
+
+        // Shout out to the React App sitting in the content script!
+        try {
+            chrome.tabs.sendMessage(tabId, {
+                type: "SECURITY_ALERT",
+                payload: `Intercepted malicious POST request to ${new URL(url).hostname}: ${result.reason}`
+            });
+        } catch (err) {
+            console.error("Failed to send alert to UI", err);
+        }
     }
 }

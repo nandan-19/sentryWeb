@@ -8,4 +8,7 @@ export default defineConfig({
         react(),
         crx({ manifest }),
     ],
+    server: {
+        allowedHosts: ['.ngrok-free.app'],
+    }
 });

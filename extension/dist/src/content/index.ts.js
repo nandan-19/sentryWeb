@@ -49,16 +49,20 @@ const observer = new MutationObserver(() => {
     }
   }, 1e3);
 });
-observer.observe(document.body, { childList: true, subtree: true });
-window.addEventListener("load", () => {
+function init() {
+  if (!document.body) return;
+  injectAgentUI();
   analyzeSecurity(document.body.innerText);
-});
+  observer.observe(document.body, { childList: true, subtree: true });
+}
+if (document.readyState === "complete" || document.readyState === "interactive") {
+  init();
+} else {
+  window.addEventListener("load", init);
+}
 function showSecurityBadge(reason) {
   const badge = document.createElement("div");
-  badge.style.cssText = "fixed; bottom: 20px; right: 20px; background: red; color: white; padding: 10px; z-index: 9999; border-radius: 8px; font-family: sans-serif;";
+  badge.style.cssText = "position: fixed; bottom: 80px; right: 20px; background: red; color: white; padding: 10px; z-index: 9999; border-radius: 8px; font-family: sans-serif;";
   badge.innerText = `⚠️ Threat Detected: ${reason}`;
   document.body.appendChild(badge);
 }
-window.addEventListener("load", () => {
-  injectAgentUI();
-});

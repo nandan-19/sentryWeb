@@ -1,31 +1,37 @@
+import styles from '../agent-ui/index.css?inline';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from '../agent-ui/App';
 
-// Tell Vite to give us the CSS as a raw string
-// Create a file at src/agent-ui/index.css if you haven't yet
-import styles from '../agent-ui/index.css?inline';
-
 export function injectAgentUI() {
     if (document.getElementById('websec-agent-container')) return;
 
-    const host = document.createElement('div');
-    host.id = 'websec-agent-container';
-    document.body.appendChild(host);
+    console.log("WebSec Agent: Injecting UI...");
+    try {
+        const host = document.createElement('div');
+        host.id = 'websec-agent-container';
+        host.style.position = 'fixed';
+        host.style.bottom = '20px';
+        host.style.right = '20px';
+        host.style.zIndex = '2147483647';
+        document.body.appendChild(host);
 
-    const shadowRoot = host.attachShadow({ mode: 'open' });
+        const shadowRoot = host.attachShadow({ mode: 'open' });
 
-    // Inject the styles directly into the shadow root
-    const styleSheet = document.createElement('style');
-    styleSheet.textContent = styles;
-    shadowRoot.appendChild(styleSheet);
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = styles;
+        shadowRoot.appendChild(styleSheet);
 
-    const reactRoot = document.createElement('div');
-    shadowRoot.appendChild(reactRoot);
+        const reactRoot = document.createElement('div');
+        shadowRoot.appendChild(reactRoot);
 
-    ReactDOM.createRoot(reactRoot).render(
-        <React.StrictMode>
-        <App />
-        </React.StrictMode>
-    );
+        ReactDOM.createRoot(reactRoot).render(
+            <React.StrictMode>
+                <App />
+            </React.StrictMode>
+        );
+        console.log("WebSec Agent: UI Injected successfully.");
+    } catch (err) {
+        console.error("WebSec Agent: Failed to inject UI:", err);
+    }
 }

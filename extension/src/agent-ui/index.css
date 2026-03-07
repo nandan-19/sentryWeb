@@ -5,6 +5,7 @@
 */
 :host {
   all: initial; /* Reset all inherited styles from the host website */
+  display: block;
   font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 

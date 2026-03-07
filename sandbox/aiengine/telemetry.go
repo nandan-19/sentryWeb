@@ -55,8 +55,8 @@ Return JSON:
 
 func analyzeWithOllama(prompt string) {
 
-	payload := map[string]interface{}{
-		"model":  "qwen:2.5b",
+	payload := map[string]any{
+		"model":  "qwen2.5:1.5b",
 		"prompt": prompt,
 		"stream": false,
 	}
@@ -80,12 +80,12 @@ func analyzeWithOllama(prompt string) {
 
 	defer resp.Body.Close()
 
-	result, err := io.ReadAll(resp.Body)
+	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Println("Failed reading response:", err)
+		log.Println("Response read error:", err)
 		return
 	}
 
-	fmt.Println("AI Analysis Result:")
-	fmt.Println(string(result))
+	fmt.Println("\n===== RAW OLLAMA RESPONSE =====")
+	fmt.Println(string(data))
 }

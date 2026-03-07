@@ -33,6 +33,18 @@ func runSandbox(url string) error {
 	return cmd.Run()
 }
 
+func waitForTelemetry() {
+
+	for range 10 {
+
+		if _, err := os.Stat("../telemetry/telemetry.json"); err == nil {
+			return
+		}
+
+		time.Sleep(1 * time.Second)
+	}
+}
+
 func main() {
 
 	if len(os.Args) < 2 {
@@ -44,16 +56,16 @@ func main() {
 
 	err := runSandbox(url)
 	if err != nil {
-		log.Println("Sandbox error:", err)
-		return
+		log.Println("Sandbox Finished: ", err)
 	}
+
+	waitForTelemetry()
 
 	time.Sleep(5 * time.Second)
 
 	telemetry, err := readTelemetry("../telemetry/telemetry.json")
 	if err != nil {
 		log.Println("Failed to read telemetry:", err)
-		return
 	}
 
 	features := extractFeatures(telemetry)

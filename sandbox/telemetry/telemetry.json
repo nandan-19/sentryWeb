@@ -1,15 +1,15 @@
 {
   "domains": [
-    "android.clients.google.com",
     "optimizationguide-pa.googleapis.com",
-    "accounts.google.com",
-    "wyatt-delineative-reggie.ngrok-free.dev"
+    "android.clients.google.com",
+    "wyatt-delineative-reggie.ngrok-free.dev",
+    "accounts.google.com"
   ],
   "external_domains": [
-    "android.clients.google.com",
     "optimizationguide-pa.googleapis.com",
-    "accounts.google.com",
-    "wyatt-delineative-reggie.ngrok-free.dev"
+    "android.clients.google.com",
+    "wyatt-delineative-reggie.ngrok-free.dev",
+    "accounts.google.com"
   ],
   "post_requests": 6
 }

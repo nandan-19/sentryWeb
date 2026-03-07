@@ -28,10 +28,13 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /sandbox
 
-EXPOSE 9222
-EXPOSE 8080
-
 COPY start.sh /sandbox/start.sh
+COPY telemetry.py /sandbox/telemetry.py
+
+# install mitmproxy CA
+COPY mitmproxy-ca-cert.pem /usr/local/share/ca-certificates/mitmproxy-ca-cert.crt
+RUN update-ca-certificates
+
 RUN chmod +x /sandbox/start.sh
 
-CMD ["/sandbox/start.sh"]
+ENTRYPOINT ["/sandbox/start.sh"]

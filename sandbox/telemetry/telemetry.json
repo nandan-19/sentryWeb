@@ -1,0 +1,17 @@
+{
+  "domains": [
+    "challenges.cloudflare.com",
+    "optimizationguide-pa.googleapis.com",
+    "accounts.google.com",
+    "android.clients.google.com",
+    "chatgpt.com"
+  ],
+  "external_domains": [
+    "challenges.cloudflare.com",
+    "optimizationguide-pa.googleapis.com",
+    "accounts.google.com",
+    "android.clients.google.com",
+    "chatgpt.com"
+  ],
+  "post_requests": 9
+}

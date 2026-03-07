@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analysis Complete</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 40px;
+        text-align: center;
+        background-color: #f8f9fa;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: white;
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      }
+      .checkmark {
+        font-size: 60px;
+        color: #28a745;
+        margin-bottom: 20px;
+      }
+      h1 {
+        color: #28a745;
+        margin-bottom: 20px;
+      }
+      .info-box {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+        text-align: left;
+      }
+      ul {
+        color: #666;
+      }
+      .countdown {
+        margin-bottom: 20px;
+        color: #666;
+      }
+      .btn {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        text-decoration: none;
+        display: inline-block;
+      }
+      .btn:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="checkmark">✓</div>
+      <h1>Analysis Complete!</h1>
+      <p style="font-size: 18px; color: #666; margin-bottom: 30px;">
+        Your recipe analysis has been processed successfully. 
+        All data has been collected and stored securely.
+      </p>
+      
+      <div class="info-box">
+        <h3 style="margin: 0 0 10px 0; color: #333;">What was analyzed:</h3>
+        <ul>
+          <li>Recipe ingredients and nutritional values</li>
+          <li>Cooking methods and preparation time</li>
+          <li>Dietary restrictions and preferences</li>
+          <li>User interaction patterns</li>
+        </ul>
+      </div>
+
+      <div class="countdown">
+        <p>Returning to main page in <strong id="countdown">5</strong> seconds...</p>
+      </div>
+
+      <a href="http://localhost:5173" class="btn">Return to Recipe Blog</a>
+    </div>
+
+    <script>
+      let countdown = 5;
+      const countdownElement = document.getElementById('countdown');
+      
+      const timer = setInterval(() => {
+        countdown--;
+        countdownElement.textContent = countdown;
+        
+        if (countdown <= 0) {
+          clearInterval(timer);
+          window.location.href = "http://localhost:5173";
+        }
+      }, 1000);
+    </script>
+  </body>
+</html>

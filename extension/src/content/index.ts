@@ -6,17 +6,13 @@ console.log("WebSec Agent: Content Script Active.");
 const processedHashes = new Set<string>();
 
 const sanitizeDOM = (textContext: string) => {
-    // Find elements containing the malicious text
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     let node;
     while ((node = walker.nextNode())) {
         if (node.textContent?.includes(textContext)) {
             const parent = node.parentElement;
             if (parent && parent.tagName !== "SCRIPT") {
-                console.warn("[WebSec] Sanitizing suspicious node...");
-                parent.style.filter = "blur(5px)"; // Visual feedback
-                parent.style.pointerEvents = "none";
-                // Optionally: parent.remove();
+                parent.classList.add('websec-sanitized'); // Clean and effective
             }
         }
     }
@@ -58,16 +54,31 @@ function shouldAnalyze(text: string): boolean {
  * Mutation Observer with Debouncing
  */
 let scanTimeout: number;
-const observer = new MutationObserver(() => {
+const observer = new MutationObserver((mutations) => {
     clearTimeout(scanTimeout);
     scanTimeout = window.setTimeout(() => {
-        const bodyText = document.body.innerText;
-        if (shouldAnalyze(bodyText)) {
-            analyzeSecurity(bodyText);
+        // We check if any mutation actually contained text changes
+        const hasTextChange = mutations.some(m =>
+            m.type === 'characterData' ||
+            (m.type === 'childList' && m.addedNodes.length > 0)
+        );
+
+        if (hasTextChange) {
+            const bodyText = document.body.innerText;
+            if (shouldAnalyze(bodyText)) {
+                analyzeSecurity(bodyText);
+            }
         }
-    }, 1000); // Wait 1 second after last DOM change to scan
+    }, 1000);
 });
 
+// Add 'characterData' and 'characterDataOldValue' to the config
+observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+    characterData: true,
+    characterDataOldValue: true
+});
 /**
  * Initialization function
  */

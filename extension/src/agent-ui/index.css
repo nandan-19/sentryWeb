@@ -80,6 +80,14 @@
   text-align: center;
 }
 
+.websec-sanitized {
+  filter: blur(12px) grayscale(100%);
+  transition: all 0.5s ease;
+  border: 2px solid #ff4d4d !important;
+  background-color: rgba(255, 0, 0, 0.05) !important;
+  pointer-events: none;
+}
+
 @keyframes pulse {
   0% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7); }
   70% { box-shadow: 0 0 0 10px rgba(255, 77, 77, 0); }

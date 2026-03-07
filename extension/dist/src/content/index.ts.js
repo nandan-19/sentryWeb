@@ -8,9 +8,7 @@ const sanitizeDOM = (textContext) => {
     if (node.textContent?.includes(textContext)) {
       const parent = node.parentElement;
       if (parent && parent.tagName !== "SCRIPT") {
-        console.warn("[WebSec] Sanitizing suspicious node...");
-        parent.style.filter = "blur(5px)";
-        parent.style.pointerEvents = "none";
+        parent.classList.add("websec-sanitized");
       }
     }
   }
@@ -40,14 +38,25 @@ function shouldAnalyze(text) {
   return triggers.some((t) => lowerText.includes(t)) || text.length > 500;
 }
 let scanTimeout;
-const observer = new MutationObserver(() => {
+const observer = new MutationObserver((mutations) => {
   clearTimeout(scanTimeout);
   scanTimeout = window.setTimeout(() => {
-    const bodyText = document.body.innerText;
-    if (shouldAnalyze(bodyText)) {
-      analyzeSecurity(bodyText);
+    const hasTextChange = mutations.some(
+      (m) => m.type === "characterData" || m.type === "childList" && m.addedNodes.length > 0
+    );
+    if (hasTextChange) {
+      const bodyText = document.body.innerText;
+      if (shouldAnalyze(bodyText)) {
+        analyzeSecurity(bodyText);
+      }
     }
   }, 1e3);
+});
+observer.observe(document.body, {
+  childList: true,
+  subtree: true,
+  characterData: true,
+  characterDataOldValue: true
 });
 function init() {
   if (!document.body) return;

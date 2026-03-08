@@ -1,16 +1,65 @@
+// sandbox/aiengine/controller.go
 package main
 
 import (
+	"encoding/json"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/gorilla/websocket"
 )
 
-func runSandbox(url string) error {
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool { return true }, // Allow Chrome Extension connection
+}
 
+var clients = make(map[*websocket.Conn]bool)
+
+func handleConnections(w http.ResponseWriter, r *http.Request) {
+	ws, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println("WebSocket upgrade failed:", err)
+		return
+	}
+	defer ws.Close()
+	clients[ws] = true
+	log.Println("Extension connected to WebSocket stream")
+
+	for {
+		_, _, err := ws.ReadMessage()
+		if err != nil {
+			delete(clients, ws)
+			log.Println("Extension disconnected")
+			break
+		}
+	}
+}
+
+func broadcast(message string) {
+	log.Println("Broadcasting:", message)
+	for client := range clients {
+		err := client.WriteJSON(map[string]string{
+			"type":    "SANDBOX_UPDATE",
+			"payload": message,
+		})
+		if err != nil {
+			client.Close()
+			delete(clients, client)
+		}
+	}
+}
+
+// --- Sandbox Logic ---
+
+type SandboxRequest struct {
+	URL string `json:"url"`
+}
+
+func runSandbox(url string) error {
 	cmd := exec.Command(
 		"docker", "run",
 		"--rm",
@@ -28,57 +77,93 @@ func runSandbox(url string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	log.Println("Launching sandbox for:", url)
-
 	return cmd.Run()
 }
 
 func waitForTelemetry() {
-
 	for range 10 {
-
 		if _, err := os.Stat("../telemetry/telemetry.json"); err == nil {
 			return
 		}
-
 		time.Sleep(1 * time.Second)
 	}
 }
 
-func main() {
-
-	if len(os.Args) < 2 {
-		log.Println("Usage: go run . <url>")
-		return
-	}
-
-	url := os.Args[1]
+func runFullAnalysis(url string) {
+	broadcast("🚀 **SENTRY CORE:** Spinning up isolated Docker sandbox for " + url)
 
 	err := runSandbox(url)
 	if err != nil {
-		log.Println("Sandbox Finished: ", err)
+		broadcast("⚠️ **Sandbox Error:** " + err.Error())
 	}
 
+	broadcast("🔍 Intercepting network telemetry and headless DOM events...")
 	waitForTelemetry()
-
-	time.Sleep(5 * time.Second)
+	time.Sleep(2 * time.Second) // Give the system time to finalize the JSON dump
 
 	telemetry, err := readTelemetry("../telemetry/telemetry.json")
 	if err != nil {
-		log.Println("Failed to read telemetry:", err)
+		broadcast("⚠️ **Critical:** Failed to read telemetry dump.")
+		return
 	}
 
+	broadcast("🧠 Generating threat embeddings and searching Vector DB...")
 	features := extractFeatures(telemetry)
-
 	text := featuresToText(features)
-
 	vector, _ := generateEmbedding(text)
 
+	// Retrieve similar historical attacks for RAG context
 	similar := searchSimilar(vector)
 
-	prompt := buildRAGPrompt(telemetry, string(similar))
+	broadcast("🤖 **AI ANALYSIS:** Running Deep RAG comparison via Qwen2.5...")
 
-	analyzeWithOllama(prompt)
+	// Build the prompt using both current telemetry and historical context
+	prompt := buildPrompt(telemetry, string(similar))
 
+	// Get the final Markdown report from Ollama
+	finalReport := analyzeWithOllama(prompt)
+
+	// Persist the new threat vector for future RAG lookups
 	storeVector(uuid.New().String(), vector, *telemetry)
+
+	// Stream the final forensic report to the Copilot UI
+	broadcast("✅ **SANDBOX ANALYSIS COMPLETE**\n\n" + finalReport)
+}
+
+// handleSandboxTrigger receives the POST request from the extension background script
+func handleSandboxTrigger(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	if r.Method == http.MethodOptions {
+		return
+	}
+
+	var req SandboxRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	// Run analysis in a goroutine so the extension doesn't timeout
+	go runFullAnalysis(req.URL)
+
+	w.WriteHeader(http.StatusAccepted)
+	json.NewEncoder(w).Encode(map[string]string{
+		"status": "Analysis Started",
+		"target": req.URL,
+	})
+}
+
+func main() {
+	// Standard API endpoint for triggering analysis
+	http.HandleFunc("/analyze", handleSandboxTrigger)
+
+	// WebSocket endpoint for real-time telemetry streaming
+	http.HandleFunc("/ws", handleConnections)
+
+	port := ":8081"
+	log.Printf("SentryWeb AI Engine active on http://localhost%s\n", port)
+	log.Fatal(http.ListenAndServe(port, nil))
 }

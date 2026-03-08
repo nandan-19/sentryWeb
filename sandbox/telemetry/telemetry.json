@@ -1,15 +1,33 @@
 {
   "domains": [
-    "optimizationguide-pa.googleapis.com",
+    "www.gstatic.com",
+    "www.google.com",
+    "accounts.google.com",
+    "www.google-analytics.com",
+    "fonts.gstatic.com",
     "android.clients.google.com",
-    "wyatt-delineative-reggie.ngrok-free.dev",
-    "accounts.google.com"
+    "i.ytimg.com",
+    "play.google.com",
+    "content-autofill.googleapis.com",
+    "www.googletagmanager.com",
+    "optimizationguide-pa.googleapis.com",
+    "play-lh.googleusercontent.com",
+    "ssl.gstatic.com"
   ],
   "external_domains": [
-    "optimizationguide-pa.googleapis.com",
+    "www.gstatic.com",
+    "www.google.com",
+    "accounts.google.com",
+    "www.google-analytics.com",
+    "fonts.gstatic.com",
     "android.clients.google.com",
-    "wyatt-delineative-reggie.ngrok-free.dev",
-    "accounts.google.com"
+    "i.ytimg.com",
+    "play.google.com",
+    "content-autofill.googleapis.com",
+    "www.googletagmanager.com",
+    "optimizationguide-pa.googleapis.com",
+    "play-lh.googleusercontent.com",
+    "ssl.gstatic.com"
   ],
-  "post_requests": 6
+  "post_requests": 17
 }

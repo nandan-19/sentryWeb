@@ -1,0 +1,84 @@
+package main
+
+import (
+	"log"
+	"os"
+	"os/exec"
+	"time"
+
+	"github.com/google/uuid"
+)
+
+func runSandbox(url string) error {
+
+	cmd := exec.Command(
+		"docker", "run",
+		"--rm",
+		"--cap-drop=ALL",
+		"--security-opt", "no-new-privileges",
+		"--name", "sentry-sandbox",
+		"--network", "bridge",
+		"-p", "9222:9222",
+		"-p", "8080:8080",
+		"-v", "../telemetry:/telemetry",
+		"sentryweb-sandbox",
+		url,
+	)
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	log.Println("Launching sandbox for:", url)
+
+	return cmd.Run()
+}
+
+func waitForTelemetry() {
+
+	for range 10 {
+
+		if _, err := os.Stat("../telemetry/telemetry.json"); err == nil {
+			return
+		}
+
+		time.Sleep(1 * time.Second)
+	}
+}
+
+func main() {
+
+	if len(os.Args) < 2 {
+		log.Println("Usage: go run . <url>")
+		return
+	}
+
+	url := os.Args[1]
+
+	err := runSandbox(url)
+	if err != nil {
+		log.Println("Sandbox Finished: ", err)
+	}
+
+	waitForTelemetry()
+
+	time.Sleep(5 * time.Second)
+
+	telemetry, err := readTelemetry("../telemetry/telemetry.json")
+	if err != nil {
+		log.Println("Failed to read telemetry:", err)
+	}
+
+	features := extractFeatures(telemetry)
+
+	text := featuresToText(features)
+
+	vector, _ := generateEmbedding(text)
+
+	similar := searchSimilar(vector)
+
+	prompt := buildRAGPrompt(telemetry, string(similar))
+
+	analyzeWithOllama(prompt)
+
+	storeVector(uuid.New().String(), vector, *telemetry)
+}

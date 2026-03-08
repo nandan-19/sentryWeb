@@ -1,10 +1,9 @@
-// file: src/background/index.ts
-import { checkPayloadWithOllama } from './api';
-import { initNetworkMonitoring } from './network'; // Import the monitor
+// src/background/index.ts
+import { checkPayloadWithOllama, chatWithOllama } from './api';
+import { initNetworkMonitoring } from './network';
 
 console.log("WebSec Background Service Worker initializing...");
 
-// 1. Listen for DOM analysis requests from the Content Script
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (message.type === "ANALYZE_DOM") {
         checkPayloadWithOllama(message.content).then(result => {
@@ -12,7 +11,13 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         });
         return true;
     }
+
+    if (message.type === "CHAT_WITH_COPILOT") {
+        chatWithOllama(message.content, message.context).then(reply => {
+            sendResponse({ reply });
+        });
+        return true;
+    }
 });
 
-// 2. Start monitoring background POST requests
 initNetworkMonitoring();

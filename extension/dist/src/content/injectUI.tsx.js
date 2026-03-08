@@ -1,7 +1,7 @@
-import __vite__cjsImport0_react_jsxDevRuntime from "/vendor/.vite-deps-react_jsx-dev-runtime.js__v--6864ab97.js"; const jsxDEV = __vite__cjsImport0_react_jsxDevRuntime["jsxDEV"];
+import __vite__cjsImport0_react_jsxDevRuntime from "/vendor/.vite-deps-react_jsx-dev-runtime.js__v--90b93522.js"; const jsxDEV = __vite__cjsImport0_react_jsxDevRuntime["jsxDEV"];
 import styles from "/src/agent-ui/index.css__inline.js";
-import __vite__cjsImport2_react from "/vendor/.vite-deps-react.js__v--6864ab97.js"; const React = __vite__cjsImport2_react.__esModule ? __vite__cjsImport2_react.default : __vite__cjsImport2_react;
-import __vite__cjsImport3_reactDom_client from "/vendor/.vite-deps-react-dom_client.js__v--6864ab97.js"; const ReactDOM = __vite__cjsImport3_reactDom_client.__esModule ? __vite__cjsImport3_reactDom_client.default : __vite__cjsImport3_reactDom_client;
+import __vite__cjsImport2_react from "/vendor/.vite-deps-react.js__v--90b93522.js"; const React = __vite__cjsImport2_react.__esModule ? __vite__cjsImport2_react.default : __vite__cjsImport2_react;
+import __vite__cjsImport3_reactDom_client from "/vendor/.vite-deps-react-dom_client.js__v--90b93522.js"; const ReactDOM = __vite__cjsImport3_reactDom_client.__esModule ? __vite__cjsImport3_reactDom_client.default : __vite__cjsImport3_reactDom_client;
 import App from "/src/agent-ui/App.tsx.js";
 export function injectAgentUI() {
   if (document.getElementById("websec-agent-container")) return;

@@ -1,16 +1,33 @@
 import { injectAgentUI } from "/src/content/injectUI.tsx.js";
-console.log("WebSec Agent: Content Script Active.");
+console.log("WebSec Agent: Aggressive DOM Scanner Active.");
 const processedHashes = /* @__PURE__ */ new Set();
-const sanitizeDOM = (textContext) => {
+const sanitizeDOM = (maliciousText, reason) => {
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   let node;
+  let mitigated = false;
+  const matchTarget = maliciousText.trim().substring(0, 30);
   while (node = walker.nextNode()) {
-    if (node.textContent?.includes(textContext)) {
+    if (node.textContent && node.textContent.includes(matchTarget)) {
       const parent = node.parentElement;
-      if (parent && parent.tagName !== "SCRIPT") {
-        parent.classList.add("websec-sanitized");
+      if (parent && !parent.closest("#websec-agent-container") && parent.tagName !== "SCRIPT") {
+        console.warn(`[WebSec] MITIGATION ENGAGED: Removing threat...`);
+        parent.style.filter = "blur(10px) grayscale(100%)";
+        parent.style.pointerEvents = "none";
+        parent.style.userSelect = "none";
+        parent.style.border = "3px dashed red";
+        parent.setAttribute("title", `Blocked by WebSec: ${reason}`);
+        mitigated = true;
       }
     }
+  }
+  if (mitigated) {
+    window.dispatchEvent(new CustomEvent("WEBSEC_DOM_ALERT", {
+      detail: `I just neutralized an element containing:
+
+> "${matchTarget}..."
+
+**Reason:** ${reason}`
+    }));
   }
 };
 async function analyzeSecurity(text) {
@@ -21,57 +38,56 @@ async function analyzeSecurity(text) {
     const response = await chrome.runtime.sendMessage({
       type: "ANALYZE_DOM",
       content: text.slice(0, 3e3)
-      // 1.5b models have context limits; 3k is plenty
     });
     if (response?.isMalicious) {
-      console.error("WebSec Alert:", response.reason);
-      sanitizeDOM(text);
-      showSecurityBadge(response.reason);
+      sanitizeDOM(text, response.reason);
     }
   } catch (err) {
-    console.error("Communication error with Background Worker", err);
+    console.error("Communication error", err);
   }
 }
 function shouldAnalyze(text) {
-  const triggers = ["ignore all previous", "system prompt", "dan mode", "<script>", "eval("];
+  const triggers = ["ignore", "previous", "system prompt", "override", "dan mode"];
   const lowerText = text.toLowerCase();
-  return triggers.some((t) => lowerText.includes(t)) || text.length > 500;
+  return triggers.some((t) => lowerText.includes(t)) && text.length > 20;
 }
 let scanTimeout;
 const observer = new MutationObserver((mutations) => {
   clearTimeout(scanTimeout);
   scanTimeout = window.setTimeout(() => {
-    const hasTextChange = mutations.some(
-      (m) => m.type === "characterData" || m.type === "childList" && m.addedNodes.length > 0
-    );
-    if (hasTextChange) {
-      const bodyText = document.body.innerText;
-      if (shouldAnalyze(bodyText)) {
-        analyzeSecurity(bodyText);
+    let textToScan = "";
+    mutations.forEach((m) => {
+      if (m.type === "characterData" && m.target.textContent) {
+        textToScan += m.target.textContent + " ";
+      } else if (m.type === "childList") {
+        m.addedNodes.forEach((node) => {
+          if (node.textContent) textToScan += node.textContent + " ";
+        });
       }
+    });
+    if (textToScan.trim() && shouldAnalyze(textToScan)) {
+      analyzeSecurity(textToScan.trim());
+    } else {
+      const bodyText = document.body.innerText;
+      if (shouldAnalyze(bodyText)) analyzeSecurity(bodyText);
     }
   }, 1e3);
-});
-observer.observe(document.body, {
-  childList: true,
-  subtree: true,
-  characterData: true,
-  characterDataOldValue: true
 });
 function init() {
   if (!document.body) return;
   injectAgentUI();
-  analyzeSecurity(document.body.innerText);
-  observer.observe(document.body, { childList: true, subtree: true });
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+    characterData: true,
+    // Crucial for DevTools text edits!
+    characterDataOldValue: true,
+    attributes: true
+    // Catches CSS changes meant to hide payloads
+  });
 }
 if (document.readyState === "complete" || document.readyState === "interactive") {
   init();
 } else {
   window.addEventListener("load", init);
-}
-function showSecurityBadge(reason) {
-  const badge = document.createElement("div");
-  badge.style.cssText = "position: fixed; bottom: 80px; right: 20px; background: red; color: white; padding: 10px; z-index: 9999; border-radius: 8px; font-family: sans-serif;";
-  badge.innerText = `⚠️ Threat Detected: ${reason}`;
-  document.body.appendChild(badge);
 }

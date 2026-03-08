@@ -1,10 +1,10 @@
 import {
   require_react_dom
-} from "/vendor/.vite-deps-chunk-AQ3CSJIS.js__v--6864ab97.js";
+} from "/vendor/.vite-deps-chunk-3DCTBBZ3.js__v--90b93522.js";
 import {
   __commonJS,
   require_react
-} from "/vendor/.vite-deps-chunk-BSNCPAQV.js__v--6864ab97.js";
+} from "/vendor/.vite-deps-chunk-FONOKHZP.js__v--90b93522.js";
 
 // node_modules/scheduler/cjs/scheduler.development.js
 var require_scheduler_development = __commonJS({

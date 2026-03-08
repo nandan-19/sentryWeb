@@ -40,22 +40,34 @@ export const initNetworkMonitoring = () => {
     );
 };
 
-async function analyzePayload(tabId: number, url: string, payload: string) {
-    console.log(`[Ollama] Analyzing payload to ${url}...`);
+async function blockHost(url: string) {
+    const host = new URL(url).hostname;
+    const ruleId = Math.floor(Math.random() * 1000) + 1; // Unique ID for the rule
 
+    console.warn(`[WebSec] HARD BLOCK: Adding rule to block all traffic to ${host}`);
+
+    await chrome.declarativeNetRequest.updateDynamicRules({
+        addRules: [{
+            id: ruleId,
+            priority: 1,
+            action: { type: chrome.declarativeNetRequest.RuleActionType.BLOCK },
+            condition: { urlFilter: host, resourceTypes: [chrome.declarativeNetRequest.ResourceType.MAIN_FRAME, chrome.declarativeNetRequest.ResourceType.XMLHTTPREQUEST] }
+        }],
+        removeRuleIds: [ruleId] // Clean up existing rule with same ID if it exists
+    });
+}
+
+async function analyzePayload(tabId: number, url: string, payload: string) {
     const result = await checkPayloadWithOllama(payload);
 
-    // Log the actual verdict so we can see it in the Service Worker console
-    console.log(`[Ollama Verdict] Malicious: ${result.isMalicious}, Reason: ${result.reason}`);
-
     if (result.isMalicious) {
-        try {
-            chrome.tabs.sendMessage(tabId, {
-                type: "SECURITY_ALERT",
-                payload: `Intercepted malicious POST request to ${new URL(url).hostname}: ${result.reason}`
-            });
-        } catch (err) {
-            console.error("Failed to send alert to UI", err);
-        }
+        // 1. Trigger the Hard Block
+        await blockHost(url);
+
+        // 2. Alert the UI
+        chrome.tabs.sendMessage(tabId, {
+            type: "SECURITY_ALERT",
+            payload: `CRITICAL: Request to ${new URL(url).hostname} was BLOCKED. Reason: ${result.reason}`
+        });
     }
 }

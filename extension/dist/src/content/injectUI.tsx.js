@@ -20,14 +20,24 @@ export function injectAgentUI() {
     shadowRoot.appendChild(styleSheet);
     const reactRoot = document.createElement("div");
     shadowRoot.appendChild(reactRoot);
+    chrome.runtime.onMessage.addListener((message) => {
+      if (message?.type === "SANDBOX_UPDATE") {
+        console.log("WebSec Agent: Sandbox update received", message.payload);
+        window.dispatchEvent(
+          new CustomEvent("websec-sandbox-update", {
+            detail: message.payload
+          })
+        );
+      }
+    });
     ReactDOM.createRoot(reactRoot).render(
       /* @__PURE__ */ jsxDEV(React.StrictMode, { children: /* @__PURE__ */ jsxDEV(App, {}, void 0, false, {
         fileName: "/home/raun/raundev/sentryWeb/extension/src/content/injectUI.tsx",
-        lineNumber: 30,
+        lineNumber: 50,
         columnNumber: 17
       }, this) }, void 0, false, {
         fileName: "/home/raun/raundev/sentryWeb/extension/src/content/injectUI.tsx",
-        lineNumber: 29,
+        lineNumber: 49,
         columnNumber: 7
       }, this)
     );

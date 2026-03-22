@@ -1,4 +1,5 @@
 import { injectAgentUI } from "/src/content/injectUI.tsx.js";
+import { initSandboxWebSocket } from "/src/background/api.ts.js";
 console.log("WebSec Agent: Aggressive DOM Scanner Active.");
 const processedHashes = /* @__PURE__ */ new Set();
 const sanitizeDOM = (maliciousText, reason) => {
@@ -91,3 +92,4 @@ if (document.readyState === "complete" || document.readyState === "interactive")
 } else {
   window.addEventListener("load", init);
 }
+initSandboxWebSocket();

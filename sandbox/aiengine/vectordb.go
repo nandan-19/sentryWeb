@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 )
 
@@ -43,11 +44,15 @@ func searchSimilar(vector []float32) []byte {
 
 	body, _ := json.Marshal(query)
 
-	resp, _ := http.Post(
+	resp, err := http.Post(
 		fmt.Sprintf("%s/collections/attacks/points/search", qdrantURL),
 		"application/json",
 		bytes.NewBuffer(body),
 	)
+
+	if err != nil {
+		log.Printf("Could not read the request %v", err)
+	}
 
 	defer resp.Body.Close()
 

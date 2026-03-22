@@ -1,33 +1,31 @@
 {
   "domains": [
-    "www.gstatic.com",
-    "www.google.com",
+    "cdnjs.cloudflare.com",
+    "server.ethicalads.io",
     "accounts.google.com",
-    "www.google-analytics.com",
-    "fonts.gstatic.com",
-    "android.clients.google.com",
-    "i.ytimg.com",
-    "play.google.com",
-    "content-autofill.googleapis.com",
+    "jsonplaceholder.typicode.com",
+    "media.ethicalads.io",
+    "github.com",
     "www.googletagmanager.com",
+    "github-production-user-asset-6210df.s3.amazonaws.com",
+    "android.clients.google.com",
     "optimizationguide-pa.googleapis.com",
-    "play-lh.googleusercontent.com",
-    "ssl.gstatic.com"
+    "static.cloudflareinsights.com",
+    "www.google-analytics.com"
   ],
   "external_domains": [
-    "www.gstatic.com",
-    "www.google.com",
+    "cdnjs.cloudflare.com",
+    "server.ethicalads.io",
     "accounts.google.com",
-    "www.google-analytics.com",
-    "fonts.gstatic.com",
-    "android.clients.google.com",
-    "i.ytimg.com",
-    "play.google.com",
-    "content-autofill.googleapis.com",
+    "jsonplaceholder.typicode.com",
+    "media.ethicalads.io",
+    "github.com",
     "www.googletagmanager.com",
+    "github-production-user-asset-6210df.s3.amazonaws.com",
+    "android.clients.google.com",
     "optimizationguide-pa.googleapis.com",
-    "play-lh.googleusercontent.com",
-    "ssl.gstatic.com"
+    "static.cloudflareinsights.com",
+    "www.google-analytics.com"
   ],
-  "post_requests": 17
+  "post_requests": 9
 }

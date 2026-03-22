@@ -1,6 +1,5 @@
 // file: src/background/network.ts
-import { checkPayloadWithOllama } from './api';
-
+import { checkPayloadWithOllama, triggerRemoteSandbox } from './api';
 export const initNetworkMonitoring = () => {
     chrome.webRequest.onBeforeRequest.addListener(
         (details): chrome.webRequest.BlockingResponse | undefined => {
@@ -61,13 +60,21 @@ async function analyzePayload(tabId: number, url: string, payload: string) {
     const result = await checkPayloadWithOllama(payload);
 
     if (result.isMalicious) {
-        // 1. Trigger the Hard Block
-        await blockHost(url);
+        console.error(`🚨 THREAT: ${result.reason}`);
 
-        // 2. Alert the UI
         chrome.tabs.sendMessage(tabId, {
             type: "SECURITY_ALERT",
-            payload: `CRITICAL: Request to ${new URL(url).hostname} was BLOCKED. Reason: ${result.reason}`
+            payload: `Intercepted malicious request to ${new URL(url).hostname}. \n\n**Reason:** ${result.reason}`
         });
+
+        const targetHost = new URL(url).origin;
+        const sandboxStarted = await triggerRemoteSandbox(targetHost);
+
+        if (sandboxStarted) {
+            chrome.tabs.sendMessage(tabId, {
+                type: "SECURITY_ALERT",
+                payload: `🛡️ **SENTRY ENGAGED:** Deep-dive sandbox container spun up for ${targetHost}`
+            });
+        }
     }
 }

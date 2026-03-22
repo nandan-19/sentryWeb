@@ -5,16 +5,30 @@
     "src": "../../../../../@crx/manifest",
     "isEntry": true
   },
+  "_api-CKu1fXvw.js": {
+    "file": "assets/api-CKu1fXvw.js",
+    "name": "api"
+  },
+  "_index.ts-loader-BjhCSPmc.js": {
+    "file": "assets/index.ts-loader-BjhCSPmc.js",
+    "src": "_index.ts-loader-BjhCSPmc.js"
+  },
   "src/background/index.ts": {
-    "file": "assets/index.ts-uYWfzAqq.js",
+    "file": "assets/index.ts-DaZ8DaQd.js",
     "name": "index.ts",
     "src": "src/background/index.ts",
-    "isEntry": true
+    "isEntry": true,
+    "imports": [
+      "_api-CKu1fXvw.js"
+    ]
   },
   "src/content/index.ts": {
-    "file": "assets/index.ts-DjSj-px3.js",
+    "file": "assets/index.ts-CwzzXOLU.js",
     "name": "index.ts",
     "src": "src/content/index.ts",
-    "isEntry": true
+    "isEntry": true,
+    "imports": [
+      "_api-CKu1fXvw.js"
+    ]
   }
 }

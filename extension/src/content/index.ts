@@ -1,5 +1,6 @@
 // src/content/index.ts
 import { injectAgentUI } from './injectUI';
+import { initSandboxWebSocket } from '../background/api';
 
 console.log("WebSec Agent: Aggressive DOM Scanner Active.");
 
@@ -119,3 +120,5 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 } else {
     window.addEventListener('load', init);
 }
+
+initSandboxWebSocket();

@@ -14,7 +14,7 @@ import (
 )
 
 var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool { return true }, // Allow Chrome Extension connection
+	CheckOrigin: func(r *http.Request) bool { return true },
 }
 
 var clients = make(map[*websocket.Conn]bool)
@@ -52,8 +52,6 @@ func broadcast(message string) {
 		}
 	}
 }
-
-// --- Sandbox Logic ---
 
 type SandboxRequest struct {
 	URL string `json:"url"`
@@ -112,25 +110,19 @@ func runFullAnalysis(url string) {
 	text := featuresToText(features)
 	vector, _ := generateEmbedding(text)
 
-	// Retrieve similar historical attacks for RAG context
 	similar := searchSimilar(vector)
 
 	broadcast("🤖 **AI ANALYSIS:** Running Deep RAG comparison via Qwen2.5...")
 
-	// Build the prompt using both current telemetry and historical context
 	prompt := buildPrompt(telemetry, string(similar))
 
-	// Get the final Markdown report from Ollama
 	finalReport := analyzeWithOllama(prompt)
 
-	// Persist the new threat vector for future RAG lookups
 	storeVector(uuid.New().String(), vector, *telemetry)
 
-	// Stream the final forensic report to the Copilot UI
 	broadcast("✅ **SANDBOX ANALYSIS COMPLETE**\n\n" + finalReport)
 }
 
-// handleSandboxTrigger receives the POST request from the extension background script
 func handleSandboxTrigger(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
@@ -146,7 +138,6 @@ func handleSandboxTrigger(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Run analysis in a goroutine so the extension doesn't timeout
 	go runFullAnalysis(req.URL)
 
 	w.WriteHeader(http.StatusAccepted)
@@ -157,10 +148,8 @@ func handleSandboxTrigger(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	// Standard API endpoint for triggering analysis
 	http.HandleFunc("/analyze", handleSandboxTrigger)
 
-	// WebSocket endpoint for real-time telemetry streaming
 	http.HandleFunc("/ws", handleConnections)
 
 	port := ":8081"

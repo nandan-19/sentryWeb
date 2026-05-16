@@ -97,7 +97,7 @@ func runFullAnalysis(url string) {
 
 	broadcast("🔍 Intercepting network telemetry and headless DOM events...")
 	waitForTelemetry()
-	time.Sleep(2 * time.Second) // Give the system time to finalize the JSON dump
+	time.Sleep(2 * time.Second) 
 
 	telemetry, err := readTelemetry("../telemetry/telemetry.json")
 	if err != nil {
